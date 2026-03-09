@@ -1,6 +1,11 @@
 require("dotenv").config();
 
-const REQUIRED_VARS = ["AWS_REGION", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "BEDROCK_MODEL_ID"];
+const REQUIRED_VARS = [
+  // "AWS_REGION",
+  // "AWS_ACCESS_KEY_ID",
+  // "AWS_SECRET_ACCESS_KEY",
+  // "BEDROCK_MODEL_ID",
+];
 
 function validateConfig() {
   const missing = REQUIRED_VARS.filter((key) => !process.env[key]);

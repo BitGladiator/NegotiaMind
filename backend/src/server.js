@@ -2,7 +2,7 @@ const express = require("express");
 const http = require("http");
 const { WebSocketServer } = require("ws");
 const { config, validateConfig } = require("../config");
-const healthRouter = require("./routes/health");
+const healthRouter = require("./routes/health.js");
 
 validateConfig();
 
