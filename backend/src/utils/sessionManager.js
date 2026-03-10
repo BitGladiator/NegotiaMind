@@ -6,8 +6,8 @@ class SessionManager {
     this.sessions = new Map();
   }
 
-  create({ onPause }) {
-    const sessionId = uuidv4();
+  create({ onPause, overrideSessionId = null }) {
+    const sessionId = overrideSessionId || uuidv4();
 
     const audioBuffer = new AudioBuffer({ sessionId, onPause });
 
@@ -18,7 +18,7 @@ class SessionManager {
     };
 
     this.sessions.set(sessionId, session);
-    console.log(`Session created: ${sessionId}`);
+    console.log(`Session ${overrideSessionId ? "resumed" : "created"}: ${sessionId}`);
     return session;
   }
 
