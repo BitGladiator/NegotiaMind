@@ -10,7 +10,7 @@ const REQUIRED_VARS = [
 function validateConfig() {
   const missing = REQUIRED_VARS.filter((key) => !process.env[key]);
   if (missing.length > 0) {
-    console.error(`Missing: ${missing.join(", ")}`);
+    console.error(`Missing required env vars: ${missing.join(", ")}`);
     process.exit(1);
   }
   console.log("Config validated.");
@@ -18,17 +18,26 @@ function validateConfig() {
 
 const config = {
   port: parseInt(process.env.PORT || "3000", 10),
+
   aws: {
     region: process.env.AWS_REGION,
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
+
   transcribe: {
     languageCode: process.env.TRANSCRIBE_LANGUAGE_CODE || "en-US",
     sampleRate: parseInt(process.env.TRANSCRIBE_SAMPLE_RATE || "16000", 10),
   },
+
   bedrock: {
     modelId: process.env.BEDROCK_MODEL_ID,
+  },
+
+  redis: {
+    host: process.env.REDIS_HOST || "localhost",
+    port: parseInt(process.env.REDIS_PORT || "6379", 10),
+    sessionTTL: parseInt(process.env.REDIS_SESSION_TTL || "86400", 10), // 24h
   },
 };
 

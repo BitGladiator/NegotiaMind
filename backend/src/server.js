@@ -31,7 +31,6 @@ wss.on("connection", (ws, req) => {
           sessionId,
           message: "Processing your speech...",
         }));
-
         const transcript = await transcribeAudio(audioChunk, sessionId);
 
         if (!transcript) {
@@ -43,18 +42,15 @@ wss.on("connection", (ws, req) => {
           sessionId,
           text: transcript,
         }));
-
         const result = await getNegotiationSuggestions(
           transcript,
           conversationHistory,
           sessionId
         );
-
         conversationHistory.push(
           { role: "user", content: transcript },
           { role: "assistant", content: JSON.stringify(result) }
         );
-
         ws.send(JSON.stringify({
           type: "suggestion",
           sessionId,
