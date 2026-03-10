@@ -4,6 +4,7 @@ const { WebSocketServer } = require("ws");
 const { config, validateConfig } = require("../config");
 const healthRouter = require("./routes/health");
 const sessionManager = require("./utils/sessionManager");
+const { transcribeAudio } = require("./services/transcribeService");
 
 validateConfig();
 
@@ -19,15 +20,40 @@ wss.on("connection", (ws, req) => {
   console.log(`Client connected: ${clientIp}`);
 
   const session = sessionManager.create({
-    onPause: (audioChunk, sessionId) => {
-     
-      console.log(`${sessionId}] Audio ready — ${audioChunk.length} bytes`);
+    onPause: async (audioChunk, sessionId) => {
+      try {
+        // Notify frontend we are processing
+        ws.send(JSON.stringify({
+          type: "processing",
+          sessionId,
+          message: "Processing your speech...",
+        }));
 
-      ws.send(JSON.stringify({
-        type: "processing",
-        sessionId,
-        message: "Processing your speech...",
-      }));
+      
+        const transcript = await transcribeAudio(audioChunk, sessionId);
+
+        if (!transcript) {
+          console.warn(`[${sessionId}] Empty transcript — skipping`);
+          return;
+        }
+
+        // Send transcript back to frontend
+        ws.send(JSON.stringify({
+          type: "transcript",
+          sessionId,
+          text: transcript,
+        }));
+
+        // send transcript to Bedrock
+
+      } catch (err) {
+        console.error(`[${sessionId}] Pipeline error:`, err.message);
+        ws.send(JSON.stringify({
+          type: "error",
+          sessionId,
+          message: "Failed to process audio.",
+        }));
+      }
     },
   });
 
@@ -49,8 +75,6 @@ wss.on("connection", (ws, req) => {
       }
       return;
     }
-
-    // Binary = raw PCM chunk
     session.audioBuffer.push(data);
   });
 
