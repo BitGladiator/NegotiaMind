@@ -5,6 +5,7 @@ const { config, validateConfig } = require("../config");
 const healthRouter = require("./routes/health");
 const sessionManager = require("./utils/sessionManager");
 const { transcribeAudio } = require("./services/transcribeService");
+const { getNegotiationSuggestions } = require("./services/bedrockService");
 
 validateConfig();
 
@@ -19,32 +20,49 @@ wss.on("connection", (ws, req) => {
   const clientIp = req.socket.remoteAddress;
   console.log(`Client connected: ${clientIp}`);
 
+  // Conversation history for this session — grows as negotiation progresses
+  const conversationHistory = [];
+
   const session = sessionManager.create({
     onPause: async (audioChunk, sessionId) => {
       try {
-        // Notify frontend we are processing
         ws.send(JSON.stringify({
           type: "processing",
           sessionId,
           message: "Processing your speech...",
         }));
 
-      
         const transcript = await transcribeAudio(audioChunk, sessionId);
 
         if (!transcript) {
           console.warn(`[${sessionId}] Empty transcript — skipping`);
           return;
         }
-
-        // Send transcript back to frontend
         ws.send(JSON.stringify({
           type: "transcript",
           sessionId,
           text: transcript,
         }));
 
-        // send transcript to Bedrock
+        const result = await getNegotiationSuggestions(
+          transcript,
+          conversationHistory,
+          sessionId
+        );
+
+        conversationHistory.push(
+          { role: "user", content: transcript },
+          { role: "assistant", content: JSON.stringify(result) }
+        );
+
+        ws.send(JSON.stringify({
+          type: "suggestion",
+          sessionId,
+          transcript,
+          suggestions: result.suggestions,
+          sentiment: result.sentiment,
+          summary: result.summary,
+        }));
 
       } catch (err) {
         console.error(`[${sessionId}] Pipeline error:`, err.message);
@@ -91,6 +109,6 @@ wss.on("connection", (ws, req) => {
 
 server.listen(config.port, () => {
   console.log(`NegotiaMind running on port ${config.port}`);
-  console.log(`    HTTP → http://localhost:${config.port}/health`);
-  console.log(`    WS   → ws://localhost:${config.port}/stream`);
+  console.log(`HTTP → http://localhost:${config.port}/health`);
+  console.log(`WS   → ws://localhost:${config.port}/stream`);
 });
