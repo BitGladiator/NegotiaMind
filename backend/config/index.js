@@ -1,10 +1,10 @@
 require("dotenv").config();
 
 const REQUIRED_VARS = [
-  // "AWS_REGION",
-  // "AWS_ACCESS_KEY_ID",
-  // "AWS_SECRET_ACCESS_KEY",
-  // "BEDROCK_MODEL_ID",
+  "AWS_REGION",
+  "BEDROCK_API_KEY",
+  "BEDROCK_MODEL_ID",
+  "DEEPGRAM_API_KEY",
 ];
 
 function validateConfig() {
@@ -21,23 +21,22 @@ const config = {
 
   aws: {
     region: process.env.AWS_REGION,
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-
-  transcribe: {
-    languageCode: process.env.TRANSCRIBE_LANGUAGE_CODE || "en-US",
-    sampleRate: parseInt(process.env.TRANSCRIBE_SAMPLE_RATE || "16000", 10),
   },
 
   bedrock: {
+    apiKey: process.env.BEDROCK_API_KEY,
     modelId: process.env.BEDROCK_MODEL_ID,
+    baseUrl: process.env.BEDROCK_BASE_URL,
+  },
+
+  deepgram: {
+    apiKey: process.env.DEEPGRAM_API_KEY,
   },
 
   redis: {
     host: process.env.REDIS_HOST || "localhost",
     port: parseInt(process.env.REDIS_PORT || "6379", 10),
-    sessionTTL: parseInt(process.env.REDIS_SESSION_TTL || "86400", 10), // 24h
+    sessionTTL: parseInt(process.env.REDIS_SESSION_TTL || "86400", 10),
   },
 };
 
