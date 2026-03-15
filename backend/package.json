@@ -7,12 +7,12 @@
       "dev": "nodemon src/server.js"
     },
     "dependencies": {
-      "@aws-sdk/client-bedrock-runtime": "^3.600.0",
+      "@aws-sdk/client-transcribe-streaming": "^3.600.0",
       "@deepgram/sdk": "^3.3.0",
       "dotenv": "^16.4.5",
-      "uuid": "^10.0.0",
-      "redis": "^4.6.14",
       "express": "^4.19.2",
+      "redis": "^4.6.14",
+      "uuid": "^10.0.0",
       "ws": "^8.17.1"
     },
     "devDependencies": {
