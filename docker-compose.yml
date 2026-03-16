@@ -1,8 +1,6 @@
 version: "3.9"
 
 services:
-
-
   backend:
     build:
       context: ./backend
@@ -13,7 +11,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - REDIS_HOST=redis      
+      - REDIS_HOST=redis
       - REDIS_PORT=6379
     depends_on:
       redis:
@@ -21,8 +19,6 @@ services:
     restart: unless-stopped
     networks:
       - negotiamind_network
-
-  
   frontend:
     build:
       context: ./frontend
@@ -36,14 +32,13 @@ services:
     networks:
       - negotiamind_network
 
-  
   redis:
     image: redis:7-alpine
     container_name: negotiamind_redis
     ports:
-      - "6379:6379"          
+      - "6379:6379"
     volumes:
-      - redis_data:/data       
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -53,10 +48,8 @@ services:
     networks:
       - negotiamind_network
 
-
 volumes:
   redis_data:
-
 
 networks:
   negotiamind_network:

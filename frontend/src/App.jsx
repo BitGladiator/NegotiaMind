@@ -46,7 +46,7 @@ export default function App() {
     onStatusChange: setWsStatus,
   });
 
-  // ── Microphone ────────────────────────────────────
+
   const { start: startMic, stop: stopMic } = useMicrophone({
     onChunk: sendAudio,
     onError: (err) => {
